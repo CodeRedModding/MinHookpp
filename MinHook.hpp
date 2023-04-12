@@ -87,9 +87,9 @@ enum class MH_STATUS : int32_t
 // MH_QueueEnableHook or MH_QueueDisableHook.
 #define MH_ALL_HOOKS NULL
 
-//#define MH_DLL_EXPORT // If you're building into a library file.
-//#define MH_DLL_IMPORT // If you're building and using the entire source in your project.
-#define MH_DLL_USE       
+#define MH_DLL_EXPORT       // If you're building into a library file.
+//#define MH_DLL_IMPORT     // If you're using an already built library file in your project.
+//#define MH_DLL_USE        // If you're building and using the entire source in your project.    
 
 #ifdef MH_DLL_EXPORT
     #define MH_DECLARE _declspec(dllexport)
