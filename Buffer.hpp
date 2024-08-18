@@ -40,10 +40,10 @@ namespace MinHook
 {
     namespace Buffer
     {
-        VOID InitializeBuffer(VOID);
-        VOID UninitializeBuffer(VOID);
+        void InitializeBuffer(void);
+        void UninitializeBuffer(void);
         LPVOID AllocateBuffer(LPVOID pOrigin);
-        VOID FreeBuffer(LPVOID pBuffer);
+        void FreeBuffer(LPVOID pBuffer);
         bool IsExecutableAddress(LPVOID pAddress);
     }
 }

@@ -87,9 +87,9 @@ enum class MH_STATUS : int32_t
 // MH_QueueEnableHook or MH_QueueDisableHook.
 #define MH_ALL_HOOKS NULL
 
-#define MH_DLL_EXPORT       // If you're building into a library file.
-//#define MH_DLL_IMPORT     // If you're using an already built library file in your project.
-//#define MH_DLL_USE        // If you're building and using the entire source in your project.    
+//#define MH_DLL_EXPORT // If you're building into a library file.
+//#define MH_DLL_IMPORT // If you're using an already built library file in your project.
+#define MH_DLL_USE      // If you're building and using the entire source in your project.
 
 #ifdef MH_DLL_EXPORT
     #define MH_DECLARE _declspec(dllexport)
@@ -103,11 +103,11 @@ namespace MinHook
 {
     // Initialize the MinHook library. You must call this function EXACTLY ONCE
      // at the beginning of your program.
-    MH_DECLARE MH_STATUS WINAPI MH_Initialize(VOID);
+    MH_DECLARE MH_STATUS WINAPI MH_Initialize(void);
 
     // Uninitialize the MinHook library. You must call this function EXACTLY
     // ONCE at the end of your program.
-    MH_DECLARE MH_STATUS WINAPI MH_Uninitialize(VOID);
+    MH_DECLARE MH_STATUS WINAPI MH_Uninitialize(void);
 
     // Creates a hook for the specified target function, in disabled state.
     // Parameters:
@@ -183,7 +183,7 @@ namespace MinHook
     MH_DECLARE MH_STATUS WINAPI MH_QueueDisableHook(LPVOID pTarget);
 
     // Applies all queued changes in one go.
-    MH_DECLARE MH_STATUS WINAPI MH_ApplyQueued(VOID);
+    MH_DECLARE MH_STATUS WINAPI MH_ApplyQueued(void);
 
     // Translates the MH_STATUS to its name as a string.
     MH_DECLARE std::string WINAPI MH_StatusToString(MH_STATUS status);

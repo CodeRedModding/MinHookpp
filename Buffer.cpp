@@ -68,13 +68,13 @@ namespace MinHook
         PMEMORY_BLOCK g_pMemoryBlocks;
 
         //-------------------------------------------------------------------------
-        VOID InitializeBuffer(VOID)
+        void InitializeBuffer(void)
         {
             // Nothing to do for now.
         }
 
         //-------------------------------------------------------------------------
-        VOID UninitializeBuffer(VOID)
+        void UninitializeBuffer(void)
         {
             PMEMORY_BLOCK pBlock = g_pMemoryBlocks;
             g_pMemoryBlocks = nullptr;

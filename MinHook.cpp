@@ -54,8 +54,7 @@
 #define ACTION_APPLY_QUEUED 2
 
 // Thread access rights for suspending/resuming threads.
-#define THREAD_ACCESS \
-    (THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT | THREAD_QUERY_INFORMATION | THREAD_SET_CONTEXT)
+#define THREAD_ACCESS (THREAD_SUSPEND_RESUME | THREAD_GET_CONTEXT | THREAD_QUERY_INFORMATION | THREAD_SET_CONTEXT)
 
 // Hook information.
 typedef struct _HOOK_ENTRY
@@ -306,7 +305,7 @@ namespace MinHook
 
                 do
                 {
-                    if (te.dwSize >= (FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) + sizeof(DWORD))
+                    if ((te.dwSize >= (FIELD_OFFSET(THREADENTRY32, th32OwnerProcessID) + sizeof(DWORD)))
                         && (te.th32OwnerProcessID == GetCurrentProcessId())
                         && (te.th32ThreadID != GetCurrentThreadId()))
                     {
@@ -314,7 +313,7 @@ namespace MinHook
                         {
                             pThreads->capacity = INITIAL_THREAD_CAPACITY;
                             pThreads->pItems = (LPDWORD)HeapAlloc(g_hHeap, 0, pThreads->capacity * sizeof(DWORD));
-                           
+
                             if (pThreads->pItems == NULL)
                             {
                                 succeeded = FALSE;
@@ -323,9 +322,10 @@ namespace MinHook
                         }
                         else if (pThreads->size >= pThreads->capacity)
                         {
+                            LPDWORD p;
                             pThreads->capacity *= 2;
-                            LPDWORD p = (LPDWORD)HeapReAlloc(g_hHeap, 0, pThreads->pItems, pThreads->capacity * sizeof(DWORD));
-                            
+                            p = (LPDWORD)HeapReAlloc(g_hHeap, 0, pThreads->pItems, pThreads->capacity * sizeof(DWORD));
+
                             if (p == NULL)
                             {
                                 succeeded = FALSE;
@@ -334,19 +334,19 @@ namespace MinHook
 
                             pThreads->pItems = p;
                         }
-
                         pThreads->pItems[pThreads->size++] = te.th32ThreadID;
                     }
 
                     te.dwSize = sizeof(THREADENTRY32);
-                } while (Thread32Next(hSnapshot, &te));
+                }
+                while (Thread32Next(hSnapshot, &te));
 
-                if (succeeded && GetLastError() != ERROR_NO_MORE_FILES)
+                if (succeeded && (GetLastError() != ERROR_NO_MORE_FILES))
                 {
                     succeeded = FALSE;
                 }
 
-                if (!succeeded && pThreads->pItems != NULL)
+                if (!succeeded && (pThreads->pItems != NULL))
                 {
                     HeapFree(g_hHeap, 0, pThreads->pItems);
                     pThreads->pItems = NULL;
@@ -379,12 +379,25 @@ namespace MinHook
             for (i = 0; i < pThreads->size; ++i)
             {
                 HANDLE hThread = OpenThread(THREAD_ACCESS, FALSE, pThreads->pItems[i]);
+                BOOL suspended = FALSE;
 
                 if (hThread != NULL)
                 {
-                    SuspendThread(hThread);
-                    ProcessThreadIPs(hThread, pos, action);
+                    DWORD result = SuspendThread(hThread);
+
+                    if (result != 0xFFFFFFFF) // Same as (DWORD)-1 or UINT32_MAX
+                    {
+                        suspended = TRUE;
+                        ProcessThreadIPs(hThread, pos, action);
+                    }
+
                     CloseHandle(hThread);
+                }
+
+                if (!suspended)
+                {
+                    // Mark thread as not suspended, so it's not resumed later on.
+                    pThreads->pItems[i] = 0;
                 }
             }
         }
@@ -393,7 +406,7 @@ namespace MinHook
     }
 
     //-------------------------------------------------------------------------
-    static VOID Unfreeze(PFROZEN_THREADS pThreads)
+    static void Unfreeze(PFROZEN_THREADS pThreads)
     {
         if (pThreads->pItems != NULL)
         {
@@ -401,12 +414,17 @@ namespace MinHook
 
             for (i = 0; i < pThreads->size; ++i)
             {
-                HANDLE hThread = OpenThread(THREAD_ACCESS, FALSE, pThreads->pItems[i]);
+                DWORD threadId = pThreads->pItems[i];
 
-                if (hThread != NULL)
+                if (threadId != 0)
                 {
-                    ResumeThread(hThread);
-                    CloseHandle(hThread);
+                    HANDLE hThread = OpenThread(THREAD_ACCESS, FALSE, threadId);
+
+                    if (hThread != NULL)
+                    {
+                        ResumeThread(hThread);
+                        CloseHandle(hThread);
+                    }
                 }
             }
 
@@ -418,7 +436,7 @@ namespace MinHook
     static MH_STATUS EnableHookLL(UINT pos, BOOL enable)
     {
         PHOOK_ENTRY pHook = &g_hooks.pItems[pos];
-        DWORD  oldProtect;
+        DWORD oldProtect;
         SIZE_T patchSize = sizeof(JMP_REL);
         LPBYTE pPatchTarget = (LPBYTE)pHook->pTarget;
 
@@ -450,7 +468,7 @@ namespace MinHook
         {
             if (pHook->patchAbove)
             {
-                memcpy(pPatchTarget, pHook->backup, sizeof(JMP_REL) + sizeof(JMP_REL_SHORT));
+                memcpy(pPatchTarget, pHook->backup, (sizeof(JMP_REL) + sizeof(JMP_REL_SHORT)));
             }
             else
             {
@@ -511,7 +529,7 @@ namespace MinHook
     }
 
     //-------------------------------------------------------------------------
-    static VOID EnterSpinLock(VOID)
+    static void EnterSpinLock(void)
     {
         SIZE_T spinCount = 0;
 
@@ -536,16 +554,15 @@ namespace MinHook
     }
 
     //-------------------------------------------------------------------------
-    static VOID LeaveSpinLock(VOID)
+    static VOID LeaveSpinLock(void)
     {
         // No need to generate a memory barrier here, since InterlockedExchange()
         // generates a full memory barrier itself.
-
         InterlockedExchange(&g_isLocked, FALSE);
     }
 
     //-------------------------------------------------------------------------
-    MH_STATUS WINAPI MH_Initialize(VOID)
+    MH_STATUS WINAPI MH_Initialize(void)
     {
         MH_STATUS status = MH_STATUS::MH_OK;
         EnterSpinLock();
@@ -574,7 +591,7 @@ namespace MinHook
     }
 
     //-------------------------------------------------------------------------
-    MH_STATUS WINAPI MH_Uninitialize(VOID)
+    MH_STATUS WINAPI MH_Uninitialize(void)
     {
         MH_STATUS status = MH_STATUS::MH_OK;
         EnterSpinLock();
@@ -657,7 +674,7 @@ namespace MinHook
 
                                 if (ct.patchAbove)
                                 {
-                                    memcpy(pHook->backup, (LPBYTE)pTarget - sizeof(JMP_REL), sizeof(JMP_REL) + sizeof(JMP_REL_SHORT));
+                                    memcpy(pHook->backup, ((LPBYTE)pTarget - sizeof(JMP_REL)), (sizeof(JMP_REL) + sizeof(JMP_REL_SHORT)));
                                 }
                                 else
                                 {
@@ -868,7 +885,7 @@ namespace MinHook
     }
 
     //-------------------------------------------------------------------------
-    MH_STATUS WINAPI MH_ApplyQueued(VOID)
+    MH_STATUS WINAPI MH_ApplyQueued(void)
     {
         MH_STATUS status = MH_STATUS::MH_OK;
         UINT i, first = INVALID_HOOK_POS;
@@ -958,33 +975,33 @@ namespace MinHook
         switch (status)
         {
         case MH_STATUS::MH_OK:
-            return "MH_OK";
+            return XSTR("MH_OK");
         case MH_STATUS::MH_ERROR_ALREADY_INITIALIZED:
-            return "MH_ERROR_ALREADY_INITIALIZED";
+            return XSTR("MH_ERROR_ALREADY_INITIALIZED");
         case MH_STATUS::MH_ERROR_NOT_INITIALIZED:
-            return "MH_ERROR_NOT_INITIALIZED";
+            return XSTR("MH_ERROR_NOT_INITIALIZED");
         case MH_STATUS::MH_ERROR_ALREADY_CREATED:
-            return "MH_ERROR_ALREADY_CREATED";
+            return XSTR("MH_ERROR_ALREADY_CREATED");
         case MH_STATUS::MH_ERROR_NOT_CREATED:
-            return "MH_ERROR_NOT_CREATED";
+            return XSTR("MH_ERROR_NOT_CREATED");
         case MH_STATUS::MH_ERROR_ENABLED:
-            return "MH_ERROR_ENABLED";
+            return XSTR("MH_ERROR_ENABLED");
         case MH_STATUS::MH_ERROR_DISABLED:
-            return "MH_ERROR_DISABLED";
+            return XSTR("MH_ERROR_DISABLED");
         case MH_STATUS::MH_ERROR_NOT_EXECUTABLE:
-            return "MH_ERROR_NOT_EXECUTABLE";
+            return XSTR("MH_ERROR_NOT_EXECUTABLE");
         case MH_STATUS::MH_ERROR_UNSUPPORTED_FUNCTION:
-            return "MH_ERROR_UNSUPPORTED_FUNCTION";
+            return XSTR("MH_ERROR_UNSUPPORTED_FUNCTION");
         case MH_STATUS::MH_ERROR_MEMORY_ALLOC:
-            return "MH_ERROR_MEMORY_ALLOC";
+            return XSTR("MH_ERROR_MEMORY_ALLOC");
         case MH_STATUS::MH_ERROR_MEMORY_PROTECT:
-            return "MH_ERROR_MEMORY_PROTECT";
+            return XSTR("MH_ERROR_MEMORY_PROTECT");
         case MH_STATUS::MH_ERROR_MODULE_NOT_FOUND:
-            return "MH_ERROR_MODULE_NOT_FOUND";
+            return XSTR("MH_ERROR_MODULE_NOT_FOUND");
         case MH_STATUS::MH_ERROR_FUNCTION_NOT_FOUND:
-            return "MH_ERROR_FUNCTION_NOT_FOUND";
+            return XSTR("MH_ERROR_FUNCTION_NOT_FOUND");
         default:
-            return "MH_UNKNOWN";
+            return XSTR("MH_UNKNOWN");
         }
     }
 }
