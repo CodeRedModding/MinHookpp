@@ -2,14 +2,17 @@
 
 [![License](https://img.shields.io/badge/License-BSD%202--Clause-orange.svg)](https://opensource.org/licenses/BSD-2-Clause)
 
-The Minimalistic x86/x64 API Hooking Library for Windows rewritten in C++.
+The Minimalistic x86/x64 API Hooking Library for Windows rewritten for use in C++.
 
 http://www.codeproject.com/KB/winsdk/LibMinHook.aspx
 
 ### Version history
 
-- **v1.3.4 - 0 Unknown 2023**
-  * Rewrite orihect ti modern C++ standards.
+- **v1.3.5 - 17 August 2024**
+  * Fix for a crash caused by an access violation when creating hooks.
+
+- **v1.3.4 - 10 April 2023**
+  * Changed some syntax to more modern standards and reorganized the code.
 
 - **v1.3.3 - 8 Jan 2017**
   * Added a helper function ```MH_CreateHookApiEx```. (Thanks to asm256)
