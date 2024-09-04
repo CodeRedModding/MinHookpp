@@ -102,10 +102,7 @@ typedef struct _TRAMPOLINE
     UINT8  newIPs[8];       // [Out] Instruction boundaries of the trampoline function.
 } TRAMPOLINE, *PTRAMPOLINE;
 
-namespace MinHook
+namespace MinHook::Trampoline
 {
-    namespace Trampoline
-    {
-        bool CreateTrampolineFunction(PTRAMPOLINE ct);
-    }
+    bool CreateTrampolineFunction(PTRAMPOLINE ct);
 }

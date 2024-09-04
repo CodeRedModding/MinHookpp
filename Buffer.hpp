@@ -36,14 +36,11 @@
     #define MEMORY_SLOT_SIZE 32
 #endif
 
-namespace MinHook
+namespace MinHook::Buffer
 {
-    namespace Buffer
-    {
-        void InitializeBuffer(void);
-        void UninitializeBuffer(void);
-        LPVOID AllocateBuffer(LPVOID pOrigin);
-        void FreeBuffer(LPVOID pBuffer);
-        bool IsExecutableAddress(LPVOID pAddress);
-    }
+    void InitializeBuffer(void);
+    void UninitializeBuffer(void);
+    LPVOID AllocateBuffer(LPVOID pOrigin);
+    void FreeBuffer(LPVOID pBuffer);
+    bool IsExecutableAddress(LPVOID pAddress);
 }

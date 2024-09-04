@@ -64,29 +64,29 @@ typedef struct _HOOK_ENTRY
     LPVOID pTrampoline;         // Address of the trampoline function.
     UINT8  backup[8];           // Original prologue of the target function.
 
-    UINT8  patchAbove  : 1;     // Uses the hot patch area.
-    UINT8  isEnabled   : 1;     // Enabled.
-    UINT8  queueEnable : 1;     // Queued for enabling/disabling when != isEnabled.
+    UINT8 patchAbove  : 1;      // Uses the hot patch area.
+    UINT8 isEnabled   : 1;      // Enabled.
+    UINT8 queueEnable : 1;      // Queued for enabling/disabling when != isEnabled.
 
-    UINT   nIP : 4;             // Count of the instruction boundaries.
-    UINT8  oldIPs[8];           // Instruction boundaries of the target function.
-    UINT8  newIPs[8];           // Instruction boundaries of the trampoline function.
+    UINT nIP : 4;               // Count of the instruction boundaries.
+    UINT8 oldIPs[8];            // Instruction boundaries of the target function.
+    UINT8 newIPs[8];            // Instruction boundaries of the trampoline function.
 } HOOK_ENTRY, *PHOOK_ENTRY;
 
 // Suspended threads for Freeze()/Unfreeze().
 typedef struct _FROZEN_THREADS
 {
     LPDWORD pItems;         // Data heap
-    UINT    capacity;       // Size of allocated data heap, items
-    UINT    size;           // Actual number of data items
+    UINT capacity;          // Size of allocated data heap, items
+    UINT size;              // Actual number of data items
 } FROZEN_THREADS, *PFROZEN_THREADS;
 
 // Hook entries.
 struct
 {
     PHOOK_ENTRY pItems;     // Data heap
-    UINT        capacity;   // Size of allocated data heap, items
-    UINT        size;       // Actual number of data items
+    UINT capacity;          // Size of allocated data heap, items
+    UINT size;              // Actual number of data items
 } g_hooks;
 
 namespace MinHook
@@ -250,8 +250,8 @@ namespace MinHook
         for (; pos < count; ++pos)
         {
             PHOOK_ENTRY pHook = &g_hooks.pItems[pos];
-            BOOL        enable;
-            DWORD_PTR   ip;
+            BOOL enable;
+            DWORD_PTR ip;
 
             switch (action)
             {
