@@ -650,7 +650,9 @@ namespace MinHook
                         ct.pDetour = pDetour;
                         ct.pTrampoline = pBuffer;
 
-                        if (Trampoline::CreateTrampolineFunction(&ct))
+                        status = Trampoline::CreateTrampolineFunction(&ct);
+
+                        if (status == MH_STATUS::MH_OK)
                         {
                             PHOOK_ENTRY pHook = AddHookEntry();
 
@@ -684,17 +686,12 @@ namespace MinHook
                                 if (ppOriginal != NULL)
                                 {
                                     *ppOriginal = pHook->pTrampoline;
-                                }
-                                    
+                                }              
                             }
                             else
                             {
                                 status = MH_STATUS::MH_ERROR_MEMORY_ALLOC;
                             }
-                        }
-                        else
-                        {
-                            status = MH_STATUS::MH_ERROR_UNSUPPORTED_FUNCTION;
                         }
 
                         if (status != MH_STATUS::MH_OK)
@@ -975,33 +972,47 @@ namespace MinHook
         switch (status)
         {
         case MH_STATUS::MH_OK:
-            return XSTR("MH_OK");
+            return "OK";
         case MH_STATUS::MH_ERROR_ALREADY_INITIALIZED:
-            return XSTR("MH_ERROR_ALREADY_INITIALIZED");
+            return "ERROR_ALREADY_INITIALIZED";
         case MH_STATUS::MH_ERROR_NOT_INITIALIZED:
-            return XSTR("MH_ERROR_NOT_INITIALIZED");
+            return "ERROR_NOT_INITIALIZED";
         case MH_STATUS::MH_ERROR_ALREADY_CREATED:
-            return XSTR("MH_ERROR_ALREADY_CREATED");
+            return "ERROR_ALREADY_CREATED";
         case MH_STATUS::MH_ERROR_NOT_CREATED:
-            return XSTR("MH_ERROR_NOT_CREATED");
+            return "ERROR_NOT_CREATED";
         case MH_STATUS::MH_ERROR_ENABLED:
-            return XSTR("MH_ERROR_ENABLED");
+            return "ERROR_ENABLED";
         case MH_STATUS::MH_ERROR_DISABLED:
-            return XSTR("MH_ERROR_DISABLED");
+            return "ERROR_DISABLED";
         case MH_STATUS::MH_ERROR_NOT_EXECUTABLE:
-            return XSTR("MH_ERROR_NOT_EXECUTABLE");
-        case MH_STATUS::MH_ERROR_UNSUPPORTED_FUNCTION:
-            return XSTR("MH_ERROR_UNSUPPORTED_FUNCTION");
+            return "ERROR_NOT_EXECUTABLE";
+        case MH_STATUS::MH_ERROR_TRAMP_DISASM:
+            return "ERROR_TRAMP_DISASM";
+        case MH_STATUS::MH_ERROR_TRAMP_NO_JUMP:
+            return "ERROR_TRAMP_NO_JUMP";
+        case MH_STATUS::MH_ERROR_TRAMP_LENGTH:
+            return "ERROR_TRAMP_LENGTH";
+        case MH_STATUS::MH_ERROR_TRAMP_TOO_BIG:
+            return "ERROR_TRAMP_TOO_BIG";
+        case MH_STATUS::MH_ERROR_TRAMP_TOO_MANY:
+            return "ERROR_TRAMP_TOO_MANY";
+        case MH_STATUS::MH_ERROR_TRAMP_NO_SHORT:
+            return "ERROR_TRAMP_NO_SHORT";
+        case MH_STATUS::MH_ERROR_TRAMP_NO_LONG:
+            return "ERROR_TRAMP_NO_LONG";
+        case MH_STATUS::MH_ERROR_TRAMP_NO_PADDING:
+            return "ERROR_TRAMP_NO_PADDING";
         case MH_STATUS::MH_ERROR_MEMORY_ALLOC:
-            return XSTR("MH_ERROR_MEMORY_ALLOC");
+            return "ERROR_MEMORY_ALLOC";
         case MH_STATUS::MH_ERROR_MEMORY_PROTECT:
-            return XSTR("MH_ERROR_MEMORY_PROTECT");
+            return "ERROR_MEMORY_PROTECT";
         case MH_STATUS::MH_ERROR_MODULE_NOT_FOUND:
-            return XSTR("MH_ERROR_MODULE_NOT_FOUND");
+            return "ERROR_MODULE_NOT_FOUND";
         case MH_STATUS::MH_ERROR_FUNCTION_NOT_FOUND:
-            return XSTR("MH_ERROR_FUNCTION_NOT_FOUND");
+            return "ERROR_FUNCTION_NOT_FOUND";
         default:
-            return XSTR("MH_UNKNOWN");
+            return "UNKNOWN";
         }
     }
 }

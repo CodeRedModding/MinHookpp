@@ -104,5 +104,5 @@ typedef struct _TRAMPOLINE
 
 namespace MinHook::Trampoline
 {
-    bool CreateTrampolineFunction(PTRAMPOLINE ct);
+    MH_STATUS CreateTrampolineFunction(PTRAMPOLINE ct);
 }

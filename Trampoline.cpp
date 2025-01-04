@@ -80,7 +80,7 @@
      }
 
      //-------------------------------------------------------------------------
-     bool CreateTrampolineFunction(PTRAMPOLINE ct)
+     MH_STATUS CreateTrampolineFunction(PTRAMPOLINE ct)
      {
 #if defined(_M_X64) || defined(__x86_64__)
          CALL_ABS call = {
@@ -139,7 +139,7 @@
 
              if (hs.flags & F_ERROR)
              {
-                 return FALSE;
+                 return MH_STATUS::MH_ERROR_TRAMP_DISASM;
              }
 
              pCopySrc = (LPVOID)pOldInst;
@@ -258,7 +258,7 @@
                  else if ((hs.opcode & 0xFC) == 0xE0)
                  {
                      // LOOPNZ/LOOPZ/LOOP/JCXZ/JECXZ to the outside are not supported.
-                     return FALSE;
+                     return MH_STATUS::MH_ERROR_TRAMP_NO_JUMP;
                  }
                  else
                  {
@@ -286,19 +286,19 @@
              // Can't alter the instruction length in a branch.
              if ((pOldInst < jmpDest) && (copySize != hs.len))
              {
-                 return false;
+                 return MH_STATUS::MH_ERROR_TRAMP_LENGTH;
              }
 
              // Trampoline function is too large.
              if ((newPos + copySize) > TRAMPOLINE_MAX_SIZE)
              {
-                 return false;
+                 return MH_STATUS::MH_ERROR_TRAMP_TOO_BIG;
              }
 
              // Trampoline function has too many instructions.
              if (ct->nIP >= ARRAYSIZE(ct->oldIPs))
              {
-                 return false;
+                 return MH_STATUS::MH_ERROR_TRAMP_TOO_MANY;
              }
 
              ct->oldIPs[ct->nIP] = oldPos;
@@ -321,18 +321,18 @@
              // Is there enough place for a short jump?
              if ((oldPos < sizeof(JMP_REL_SHORT)) && !IsCodePadding((LPBYTE)ct->pTarget + oldPos, sizeof(JMP_REL_SHORT) - oldPos))
              {
-                 return false;
+                 return MH_STATUS::MH_ERROR_TRAMP_NO_SHORT;
              }
 
              // Can we place the long jump above the function?
              if (!Buffer::IsExecutableAddress((LPBYTE)ct->pTarget - sizeof(JMP_REL)))
              {
-                 return false;
+                 return MH_STATUS::MH_ERROR_TRAMP_NO_LONG;
              }
 
              if (!IsCodePadding((LPBYTE)ct->pTarget - sizeof(JMP_REL), sizeof(JMP_REL)))
              {
-                 return false;
+                 return MH_STATUS::MH_ERROR_TRAMP_NO_PADDING;
              }
 
              ct->patchAbove = TRUE;
@@ -342,10 +342,10 @@
          // Create a relay function.
          jmp.address = (ULONG_PTR)ct->pDetour;
 
-         ct->pRelay = (LPBYTE)ct->pTrampoline + newPos;
+         ct->pRelay = ((LPBYTE)ct->pTrampoline + newPos);
          memcpy(ct->pRelay, &jmp, sizeof(jmp));
 #endif
 
-         return true;
+         return MH_STATUS::MH_OK;
      }
 }

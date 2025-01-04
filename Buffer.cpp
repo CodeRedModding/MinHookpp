@@ -59,10 +59,10 @@ typedef struct _MEMORY_BLOCK
 namespace MinHook::Buffer
 {
     //-------------------------------------------------------------------------
-         // Global Variables:
-         //-------------------------------------------------------------------------
+    // Global Variables:
+    //-------------------------------------------------------------------------
 
-         // First element of the memory block list.
+    // First element of the memory block list.
     PMEMORY_BLOCK g_pMemoryBlocks;
 
     //-------------------------------------------------------------------------
@@ -116,7 +116,7 @@ namespace MinHook::Buffer
                 break;
             }
 
-            tryAddr = (ULONG_PTR)mbi.AllocationBase - dwAllocationGranularity;
+            tryAddr = ((ULONG_PTR)mbi.AllocationBase - dwAllocationGranularity);
         }
 
         return NULL;
@@ -152,8 +152,8 @@ namespace MinHook::Buffer
             tryAddr = ((ULONG_PTR)mbi.BaseAddress + mbi.RegionSize);
 
             // Round up to the next allocation granularity.
-            tryAddr += dwAllocationGranularity - 1;
-            tryAddr -= tryAddr % dwAllocationGranularity;
+            tryAddr += (dwAllocationGranularity - 1);
+            tryAddr -= (tryAddr % dwAllocationGranularity);
         }
 
         return NULL;
@@ -174,14 +174,14 @@ namespace MinHook::Buffer
         maxAddr = (ULONG_PTR)si.lpMaximumApplicationAddress;
 
         // pOrigin ± 512MB
-        if (((ULONG_PTR)pOrigin > MAX_MEMORY_RANGE) && (minAddr < (ULONG_PTR)pOrigin - MAX_MEMORY_RANGE))
+        if (((ULONG_PTR)pOrigin > MAX_MEMORY_RANGE) && (minAddr < ((ULONG_PTR)pOrigin - MAX_MEMORY_RANGE)))
         {
-            minAddr = (ULONG_PTR)pOrigin - MAX_MEMORY_RANGE;
+            minAddr = ((ULONG_PTR)pOrigin - MAX_MEMORY_RANGE);
         }
 
         if (maxAddr > ((ULONG_PTR)pOrigin + MAX_MEMORY_RANGE))
         {
-            maxAddr = (ULONG_PTR)pOrigin + MAX_MEMORY_RANGE;
+            maxAddr = ((ULONG_PTR)pOrigin + MAX_MEMORY_RANGE);
         }
 
         // Make room for MEMORY_BLOCK_SIZE bytes.
@@ -219,7 +219,7 @@ namespace MinHook::Buffer
                     break;
                 }
 
-                pBlock = (PMEMORY_BLOCK)VirtualAlloc(pAlloc, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+                pBlock = (PMEMORY_BLOCK)VirtualAlloc(pAlloc, MEMORY_BLOCK_SIZE, (MEM_COMMIT | MEM_RESERVE), PAGE_EXECUTE_READWRITE);
 
                 if (pBlock)
                 {
@@ -242,7 +242,7 @@ namespace MinHook::Buffer
                     break;
                 }
 
-                pBlock = (PMEMORY_BLOCK)VirtualAlloc(pAlloc, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+                pBlock = (PMEMORY_BLOCK)VirtualAlloc(pAlloc, MEMORY_BLOCK_SIZE, (MEM_COMMIT | MEM_RESERVE), PAGE_EXECUTE_READWRITE);
 
                 if (pBlock)
                 {
@@ -252,14 +252,14 @@ namespace MinHook::Buffer
         }
 #else
         // In x86 mode, a memory block can be placed anywhere.
-        pBlock = (PMEMORY_BLOCK)VirtualAlloc(NULL, MEMORY_BLOCK_SIZE, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+        pBlock = (PMEMORY_BLOCK)VirtualAlloc(NULL, MEMORY_BLOCK_SIZE, (MEM_COMMIT | MEM_RESERVE), PAGE_EXECUTE_READWRITE);
 #endif
 
         if (pBlock)
         {
             // Build a linked list of all the slots.
             PMEMORY_SLOT pSlot = (PMEMORY_SLOT)pBlock + 1;
-            pBlock->pFree = nullptr;
+            pBlock->pFree = NULL;
             pBlock->usedCount = 0;
 
             do
@@ -302,8 +302,8 @@ namespace MinHook::Buffer
     VOID FreeBuffer(LPVOID pBuffer)
     {
         PMEMORY_BLOCK pBlock = g_pMemoryBlocks;
-        PMEMORY_BLOCK pPrev = nullptr;
-        ULONG_PTR pTargetBlock = ((ULONG_PTR)pBuffer / MEMORY_BLOCK_SIZE) * MEMORY_BLOCK_SIZE;
+        PMEMORY_BLOCK pPrev = NULL;
+        ULONG_PTR pTargetBlock = (((ULONG_PTR)pBuffer / MEMORY_BLOCK_SIZE) * MEMORY_BLOCK_SIZE);
 
         while (pBlock)
         {

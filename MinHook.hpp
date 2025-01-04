@@ -35,54 +35,6 @@
 #include <string>
 #include <cstdint>
 
-// MinHook Error Codes.
-enum class MH_STATUS : int32_t
-{
-    // Unknown error. Should not be returned.
-    MH_UNKNOWN = -1,
-
-    // Successful.
-    MH_OK = 0,
-
-    // MinHook is already initialized.
-    MH_ERROR_ALREADY_INITIALIZED,
-
-    // MinHook is not initialized yet, or already uninitialized.
-    MH_ERROR_NOT_INITIALIZED,
-
-    // The hook for the specified target function is already created.
-    MH_ERROR_ALREADY_CREATED,
-
-    // The hook for the specified target function is not created yet.
-    MH_ERROR_NOT_CREATED,
-
-    // The hook for the specified target function is already enabled.
-    MH_ERROR_ENABLED,
-
-    // The hook for the specified target function is not enabled yet, or already
-    // disabled.
-    MH_ERROR_DISABLED,
-
-    // The specified pointer is invalid. It points the address of non-allocated
-    // and/or non-executable region.
-    MH_ERROR_NOT_EXECUTABLE,
-
-    // The specified target function cannot be hooked.
-    MH_ERROR_UNSUPPORTED_FUNCTION,
-
-    // Failed to allocate memory.
-    MH_ERROR_MEMORY_ALLOC,
-
-    // Failed to change the memory protection.
-    MH_ERROR_MEMORY_PROTECT,
-
-    // The specified module is not loaded.
-    MH_ERROR_MODULE_NOT_FOUND,
-
-    // The specified function is not found.
-    MH_ERROR_FUNCTION_NOT_FOUND
-};
-
 // Can be passed as a parameter to MH_EnableHook, MH_DisableHook,
 // MH_QueueEnableHook or MH_QueueDisableHook.
 #define MH_ALL_HOOKS NULL
@@ -101,8 +53,75 @@ enum class MH_STATUS : int32_t
 
 namespace MinHook
 {
+    // MinHook Error Codes.
+    enum class MH_STATUS : int32_t
+    {
+        // Unknown error. Should not be returned.
+        MH_UNKNOWN = -1,
+
+        // Successful.
+        MH_OK = 0,
+
+        // MinHook is already initialized.
+        MH_ERROR_ALREADY_INITIALIZED,
+
+        // MinHook is not initialized yet, or already uninitialized.
+        MH_ERROR_NOT_INITIALIZED,
+
+        // The hook for the specified target function is already created.
+        MH_ERROR_ALREADY_CREATED,
+
+        // The hook for the specified target function is not created yet.
+        MH_ERROR_NOT_CREATED,
+
+        // The hook for the specified target function is already enabled.
+        MH_ERROR_ENABLED,
+
+        // The hook for the specified target function is not enabled yet, or already disabled.
+        MH_ERROR_DISABLED,
+
+        // The specified pointer is invalid. It points the address of non-allocated and/or non-executable region.
+        MH_ERROR_NOT_EXECUTABLE,
+
+        // F_ERROR flags where set while trying to disasemble the given function.
+        MH_ERROR_TRAMP_DISASM,
+
+        // LOOPNZ/LOOPZ/LOOP/JCXZ/JECXZ to the outside are not supported for the given function.
+        MH_ERROR_TRAMP_NO_JUMP,
+
+        // Can't alter the instruction length in a branch.
+        MH_ERROR_TRAMP_LENGTH,
+
+        // Trampoline function is too large.
+        MH_ERROR_TRAMP_TOO_BIG,
+
+        // Trampoline function has too many instructions.
+        MH_ERROR_TRAMP_TOO_MANY,
+
+        // Trampoline function doesn't have enough space for a short jump.
+        MH_ERROR_TRAMP_NO_SHORT,
+
+        // Trampoline function doesn't have enough space for a long jump.
+        MH_ERROR_TRAMP_NO_LONG,
+
+        // Trampoline function doesn't have enough space for code padding.
+        MH_ERROR_TRAMP_NO_PADDING,
+
+        // Failed to allocate memory.
+        MH_ERROR_MEMORY_ALLOC,
+
+        // Failed to change the memory protection.
+        MH_ERROR_MEMORY_PROTECT,
+
+        // The specified module is not loaded.
+        MH_ERROR_MODULE_NOT_FOUND,
+
+        // The specified function is not found.
+        MH_ERROR_FUNCTION_NOT_FOUND
+    };
+
     // Initialize the MinHook library. You must call this function EXACTLY ONCE
-     // at the beginning of your program.
+    // at the beginning of your program.
     MH_DECLARE MH_STATUS WINAPI MH_Initialize(void);
 
     // Uninitialize the MinHook library. You must call this function EXACTLY
