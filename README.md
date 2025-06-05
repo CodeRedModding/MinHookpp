@@ -8,7 +8,7 @@ http://www.codeproject.com/KB/winsdk/LibMinHook.aspx
 
 ### Version history
 
-- **v1.3.6 - 4th January 2025**
+- **v1.3.6 - 4 January 2025**
   * Added new ```MH_STATUS``` errors for the ```CreateTrampolineFunction```, as opposed to just returning false.
 
 - **v1.3.5 - 17 August 2024**
