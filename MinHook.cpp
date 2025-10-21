@@ -603,9 +603,7 @@ namespace MinHook
             if (status == MH_STATUS::MH_OK)
             {
                 // Free the internal function buffer.
-
-                // HeapFree is actually not required, but some tools detect a false
-                // memory leak without HeapFree.
+                // HeapFree is actually not required, but some tools detect a false memory leak without HeapFree.
 
                 Buffer::UninitializeBuffer();
 
